@@ -1,8 +1,8 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { CONTRACTS, INITIAL_MINT, INITIAL_MINT_PROFIT } from "../../constants";
-import { OlympusERC20Token__factory, OlympusTreasury__factory, DAI__factory } from "../../../types";
-import { waitFor } from "../../txHelper";
+import { CONTRACTS, INITIAL_MINT, INITIAL_MINT_PROFIT } from "../constants";
+import { OlympusERC20Token__factory, OlympusTreasury__factory, DAI__factory } from "../../types";
+import { waitFor } from "../txHelper";
 
 const faucetContract = "OhmFaucet";
 

@@ -19,10 +19,9 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
 
     /* ======== EVENTS ======== */
 
-    event CreateMarket(uint256 indexed id, address indexed baseToken, address indexed quoteToken, uint256 initialPrice);
-    event CloseMarket(uint256 indexed id);
-    event Bond(uint256 indexed id, uint256 amount, uint256 price);
-    event Tuned(uint256 indexed id, uint64 oldControlVariable, uint64 newControlVariable);
+    event CreateMarket(uint256 id, address baseToken, address quoteToken, uint256 initialPrice);
+    event CloseMarket(uint256 id);
+    event Bond(uint256 id, uint256 amount, uint256 payout, uint256 expires, uint256 price);
 
     /* ======== STATE VARIABLES ======== */
 
@@ -31,6 +30,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     Terms[] public terms; // deposit construction data
     Metadata[] public metadata; // extraneous market data
     mapping(uint256 => Adjustment) public adjustments; // control variable changes
+    string[] public names; // market names (for front ends)
 
     // Queries
     mapping(address => uint256[]) public marketsForQuote; // market IDs for quote token
@@ -41,9 +41,8 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
         IOlympusAuthority _authority,
         IERC20 _ohm,
         IgOHM _gohm,
-        IStaking _staking,
-        ITreasury _treasury
-    ) NoteKeeper(_authority, _ohm, _gohm, _staking, _treasury) {
+        IStaking _staking
+    ) NoteKeeper(_authority, _ohm, _gohm, _staking) {
         // save gas for users by bulk approving stake() transactions
         _ohm.approve(address(_staking), 1e45);
     }
@@ -78,18 +77,17 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     {
         Market storage market = markets[_id];
         Terms memory term = terms[_id];
-        uint48 currentTime = uint48(block.timestamp);
 
         // Markets end at a defined timestamp
         // |-------------------------------------| t
-        require(currentTime < term.conclusion, "Depository: market concluded");
+        require(block.timestamp < term.conclusion, "Depository: market concluded");
 
         // Debt and the control variable decay over time
-        _decay(_id, currentTime);
+        _decay(_id);
 
+        uint256 price = _marketPrice(_id);
         // Users input a maximum price, which protects them from price changes after
         // entering the mempool. max price is a slippage mitigation measure
-        uint256 price = _marketPrice(_id);
         require(price <= _maxPrice, "Depository: more than max price");
 
         /**
@@ -117,7 +115,10 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * or the number of quote tokens that the market can buy
          * (if capacity in quote is true)
          */
-        market.capacity -= market.capacityInQuote ? _amount : payout_;
+        uint256 capacityToUse = market.capacityInQuote ? _amount : payout_;
+
+        require(capacityToUse <= market.capacity, "Depository: capacity exceeded");
+        market.capacity -= capacityToUse;
 
         /**
          * bonds mature with a cliff at a set timestamp
@@ -134,7 +135,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * i.e. expiration = day 10. when alice deposits on day 1, her term
          * is 9 days. when bob deposits on day 2, his term is 8 days.
          */
-        expiry_ = term.fixedTerm ? term.vesting + currentTime : term.vesting;
+        expiry_ = term.fixedTerm ? term.vesting + block.timestamp : term.vesting;
 
         // markets keep track of how many quote tokens have been
         // purchased, and how much OHM has been sold
@@ -144,7 +145,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
         // incrementing total debt raises the price of the next bond
         market.totalDebt += uint64(payout_);
 
-        emit Bond(_id, _amount, price);
+        emit Bond(_id, _amount, payout_, expiry_, price);
 
         /**
          * user data is stored as Notes. these are isolated array entries
@@ -164,16 +165,17 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
             emit CloseMarket(_id);
         } else {
             // if market will continue, the control variable is tuned to hit targets on time
-            _tune(_id, currentTime);
+            _tune(_id);
         }
     }
 
     /**
      * @notice             decay debt, and adjust control variable if there is an active change
      * @param _id          ID of market
-     * @param _time        uint48 timestamp (saves gas when passed in)
      */
-    function _decay(uint256 _id, uint48 _time) internal {
+    function _decay(uint256 _id) internal {
+        uint48 currentTime = uint48(block.timestamp);
+
         // Debt decay
 
         /*
@@ -191,7 +193,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * |------------------------------------| t
          */
         markets[_id].totalDebt -= debtDecay(_id);
-        metadata[_id].lastDecay = _time;
+        metadata[_id].lastDecay = currentTime;
 
         // Control variable decay
 
@@ -200,13 +202,13 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
         if (adjustments[_id].active) {
             Adjustment storage adjustment = adjustments[_id];
 
-            (uint64 adjustBy, uint48 secondsSince, bool stillActive) = _controlDecay(_id);
+            (uint64 adjustBy, uint48 secondsSinceLast, bool stillActive) = _controlDecay(_id);
             terms[_id].controlVariable -= adjustBy;
 
             if (stillActive) {
                 adjustment.change -= adjustBy;
-                adjustment.timeToAdjusted -= secondsSince;
-                adjustment.lastAdjustment = _time;
+                adjustment.timeToAdjusted -= secondsSinceLast;
+                adjustment.lastAdjustment = currentTime;
             } else {
                 adjustment.active = false;
             }
@@ -216,16 +218,15 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     /**
      * @notice             auto-adjust control variable to hit capacity/spend target
      * @param _id          ID of market
-     * @param _time        uint48 timestamp (saves gas when passed in)
      */
-    function _tune(uint256 _id, uint48 _time) internal {
+    function _tune(uint256 _id) internal {
+        Market memory market = markets[_id];
         Metadata memory meta = metadata[_id];
+        uint48 time = uint48(block.timestamp);
 
-        if (_time >= meta.lastTune + meta.tuneInterval) {
-            Market memory market = markets[_id];
-
+        if (time >= meta.lastTune + meta.tuneInterval) {
             // compute seconds remaining until market will conclude
-            uint256 timeRemaining = terms[_id].conclusion - _time;
+            uint256 timeRemaining = terms[_id].conclusion - time;
             uint256 price = _marketPrice(_id);
 
             // standardize capacity into an base token amount
@@ -249,17 +250,15 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
             // derive a new control variable from the target debt and current supply
             uint64 newControlVariable = uint64((price * treasury.baseSupply()) / targetDebt);
 
-            emit Tuned(_id, terms[_id].controlVariable, newControlVariable);
-
             if (newControlVariable >= terms[_id].controlVariable) {
                 terms[_id].controlVariable = newControlVariable;
             } else {
                 // if decrease, control variable change will be carried out over the tune interval
                 // this is because price will be lowered
                 uint64 change = terms[_id].controlVariable - newControlVariable;
-                adjustments[_id] = Adjustment(change, _time, meta.tuneInterval, true);
+                adjustments[_id] = Adjustment(change, time, meta.tuneInterval, true);
             }
-            metadata[_id].lastTune = _time;
+            metadata[_id].lastTune = time;
         }
     }
 
@@ -268,24 +267,30 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     /**
      * @notice             creates a new market type
      * @dev                current price should be in 9 decimals.
+     * @param _name        off-chain generated name for market. format ex: "DAI" or "OHM-DAI"
      * @param _quoteToken  token used to deposit
-     * @param _market      [capacity (in OHM or quote), initial price / OHM (9 decimals), debt buffer (3 decimals)]
+     * @param _market      [capacity (in OHM or quote), initial price (9 decimals), debt buffer (3 decimals)]
      * @param _booleans    [capacity in quote, fixed term]
      * @param _terms       [vesting length (if fixed term) or vested timestamp, conclusion timestamp]
-     * @param _intervals   [deposit interval (seconds), tune interval (seconds)]
+     * @param _intervals   [deposit interval, tune interval]
      * @return id_         ID of new bond market
      */
     function create(
+        string memory _name,
         IERC20 _quoteToken,
         uint256[3] memory _market,
         bool[2] memory _booleans,
         uint256[2] memory _terms,
         uint32[2] memory _intervals
-    ) external override onlyPolicy returns (uint256 id_) {
+    ) external override returns (uint256 id_) {
+        /*
+         * Format exemplars: "FRAX", "OHM-DAI"
+         */
+        names.push(_name);
+
         // the length of the program, in seconds
         uint256 secondsToConclusion = _terms[1] - block.timestamp;
 
-        // the decimal count of the quote token
         uint256 decimals = IERC20Metadata(address(_quoteToken)).decimals();
 
         /*
@@ -310,9 +315,10 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * market would continue to buy until it runs out of capacity. this is
          * configurable with a 3 decimal buffer (1000 = 1% above initial price).
          * note that its likely advisable to keep this buffer wide.
-         * note that the buffer is above 100%. i.e. 10% buffer = initial debt * 1.1
+         * note that the buffer must be >100,000 (aka greater than 100%)
          */
-        uint256 maxDebt = targetDebt + ((targetDebt * _market[2]) / 1e5); // 1e5 = 100,000. 10,000 / 100,000 = 10%.
+        require(_market[2] > 1e5, "Debt buffer less than initial debt");
+        uint256 maxDebt = (targetDebt * _market[2]) / 1e5; // 1e5 = 100,000. 110,000 / 100,000 = 110%.
 
         /*
          * the control variable is set so that initial price equals the desired
@@ -415,12 +421,13 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
      * @param _amount      amount of quote tokens to spend
      * @param _id          ID of market
      * @return             amount of OHM to be paid in OHM decimals
-     *
-     * @dev 1e18 = ohm decimals (9) + market price decimals (9)
      */
     function payoutFor(uint256 _amount, uint256 _id) external view override returns (uint256) {
         Metadata memory meta = metadata[_id];
-        return (_amount * 1e18) / marketPrice(_id) / 10**meta.quoteDecimals;
+        return
+            (_amount * 1e18) / // = ohm decimals (9) + market price decimals (9)
+            marketPrice(_id) /
+            10**meta.quoteDecimals;
     }
 
     /**
@@ -451,9 +458,10 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     function debtDecay(uint256 _id) public view override returns (uint64) {
         Metadata memory meta = metadata[_id];
 
-        uint256 secondsSince = block.timestamp - meta.lastDecay;
+        uint256 totalDebt = markets[_id].totalDebt;
+        uint256 secondsSinceLast = block.timestamp - meta.lastDecay;
 
-        return uint64((markets[_id].totalDebt * secondsSince) / meta.length);
+        return uint64((totalDebt * secondsSinceLast) / meta.length);
     }
 
     /**

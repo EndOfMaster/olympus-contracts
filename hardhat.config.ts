@@ -56,7 +56,7 @@ const config: HardhatUserConfig = {
         },
         // Uncomment for testing. Commented due to CI issues
         // mainnet: getChainConfig("mainnet"),
-        // rinkeby: getChainConfig("rinkeby"),
+        rinkeby: getChainConfig("rinkeby"),
         // ropsten: getChainConfig("ropsten"),
     },
     paths: {
@@ -77,7 +77,7 @@ const config: HardhatUserConfig = {
                     },
                     optimizer: {
                         enabled: true,
-                        runs: 800,
+                        runs: 200,
                     },
                 },
             },
@@ -89,7 +89,7 @@ const config: HardhatUserConfig = {
                     },
                     optimizer: {
                         enabled: true,
-                        runs: 800,
+                        runs: 200,
                     },
                 },
             },
@@ -101,7 +101,7 @@ const config: HardhatUserConfig = {
                     },
                     optimizer: {
                         enabled: true,
-                        runs: 800,
+                        runs: 200,
                     },
                 },
             },
@@ -116,7 +116,7 @@ const config: HardhatUserConfig = {
                     },
                     optimizer: {
                         enabled: true,
-                        runs: 800,
+                        runs: 200,
                     },
                 },
             },

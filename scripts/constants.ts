@@ -5,7 +5,7 @@ export const CONTRACTS: Record<string, string> = {
     staking: "OlympusStaking",
     distributor: "Distributor",
     treasury: "OlympusTreasury",
-    bondDepo: "OlympusBondDepository",
+    bondDepo: "OlympusBondDepositoryV2",
     teller: "BondTeller",
     bondingCalculator: "OlympusBondingCalculator",
     authority: "OlympusAuthority",

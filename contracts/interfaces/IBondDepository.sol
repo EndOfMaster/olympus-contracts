@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity >=0.7.5;
+pragma solidity ^0.8.10;
 
 import "./IERC20.sol";
 
@@ -20,7 +20,7 @@ interface IBondDepository {
         bool fixedTerm; // fixed term or fixed expiration
         uint64 controlVariable; // scaling variable for price
         uint48 vesting; // length of time from deposit to maturity if fixed-term
-        uint48 conclusion; // timestamp when market no longer offered (doubles as time when market matures if fixed-expiry)
+        uint48 conclusion; // timestamp when market no longer offered (doubles as time when market matures
         uint64 maxDebt; // 9 decimal debt maximum in OHM
     }
 
@@ -68,6 +68,7 @@ interface IBondDepository {
         );
 
     function create(
+        string memory _name, // name for market. ex: "OHM-DAI"
         IERC20 _quoteToken, // token used to deposit
         uint256[3] memory _market, // [capacity, initial price]
         bool[2] memory _booleans, // [capacity in quote, fixed term]
