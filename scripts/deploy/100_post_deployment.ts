@@ -46,7 +46,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const lusdAllocator = LUSDAllocator__factory.connect(lusdAllocatorDeployment.address, signer);
     const bondDepo = IBondDepository__factory.connect(bondDepoDeployment.address, signer);
 
-    // Step 1: Set treasury as vault on authority
+    //Step 1: Set treasury as vault on authority
     await waitFor(authorityContract.pushVault(treasury.address, true));
     console.log("Setup -- authorityContract.pushVault: set vault on authority");
 
@@ -85,10 +85,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     await waitFor(bondDepo.create(
         "dai",
         daiDeployment.address,
-        [ethers.BigNumber.from("100000000000000000000000"), 60000000000, 100000],
+        [capacity, initialPrice, buffer],
         [true, true],
-        [100, 1677008640],
-        [14400, 86400]
+        [vesting, conclusion],
+        [depositInterval, tuneInterval]
     ))
     console.log("Setup -- create bonds");
 

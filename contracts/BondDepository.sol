@@ -45,6 +45,10 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     ) NoteKeeper(_authority, _ohm, _gohm, _staking) {
         // save gas for users by bulk approving stake() transactions
         _ohm.approve(address(_staking), 1e45);
+        markets.push();
+        names.push();
+        terms.push();
+        metadata.push();
     }
 
     /* ======== DEPOSIT ======== */
