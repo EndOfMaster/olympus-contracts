@@ -143,7 +143,6 @@ describe("Bond Depository", async () => {
 
         // create the first bond
         await depository.create(
-            "dai",
             dai.address,
             [capacity, initialPrice, buffer],
             [false, true],

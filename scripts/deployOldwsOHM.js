@@ -4,7 +4,7 @@ async function main() {
     const [deployer] = await ethers.getSigners();
     console.log("Deploying contracts with the account: " + deployer.address);
 
-    const oldsOHM = "0x1Fecda1dE7b6951B248C0B62CaeBD5BAbedc2084";
+    const oldsOHM = "0xEE173BCFfc24c4b637294EcAb025d46Ff46b4692";
 
     const WSOHM = await ethers.getContractFactory("wOHM");
     const wsOHM = await WSOHM.deploy(oldsOHM);

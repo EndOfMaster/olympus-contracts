@@ -68,7 +68,6 @@ interface IBondDepository {
         );
 
     function create(
-        string memory _name, // name for market. ex: "OHM-DAI"
         IERC20 _quoteToken, // token used to deposit
         uint256[3] memory _market, // [capacity, initial price]
         bool[2] memory _booleans, // [capacity in quote, fixed term]

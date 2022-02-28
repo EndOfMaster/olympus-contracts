@@ -20,11 +20,12 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
         IOlympusAuthority _authority,
         IERC20 _ohm,
         IgOHM _gohm,
-        IStaking _staking
+        IStaking _staking,
+        ITreasury _treasury
     ) FrontEndRewarder(_authority, _ohm) {
         gOHM = _gohm;
         staking = _staking;
-        treasury = ITreasury(_authority.vault());
+        treasury = _treasury;
     }
 
     // if treasury address changes on authority, update it
@@ -41,7 +42,7 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
     /* ========== ADD ========== */
 
     /**
-     * @notice             adds a new Note for a user, stores the front end & DAO rewards, and mints & stakes payout 
+     * @notice             adds a new Note for a user, stores the front end & DAO rewards, and mints & stakes payout
      * @param _user        the user that owns the Note
      * @param _payout      the amount of OHM due to the user
      * @param _expiry      the timestamp when the Note is redeemable
@@ -159,16 +160,18 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
      * @return             the pending notes for the user
      */
     function indexesFor(address _user) public view override returns (uint256[] memory) {
+        Note[] memory info = notes[_user];
+
         uint256 length;
-        for (uint256 i = 0; i < notes[_user].length; i++) {
-            if (notes[_user][i].redeemed == 0) length++;
+        for (uint256 i = 0; i < info.length; i++) {
+            if (info[i].redeemed == 0 && info[i].payout != 0) length++;
         }
 
         uint256[] memory indexes = new uint256[](length);
         uint256 position;
 
-        for (uint256 i = 0; i < notes[_user].length; i++) {
-            if (notes[_user][i].redeemed == 0) {
+        for (uint256 i = 0; i < info.length; i++) {
+            if (info[i].redeemed == 0 && info[i].payout != 0) {
                 indexes[position] = i;
                 position++;
             }
@@ -188,6 +191,6 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
         Note memory note = notes[_user][_index];
 
         payout_ = note.payout;
-        matured_ = note.redeemed == 0 && note.matured <= block.timestamp;
+        matured_ = note.redeemed == 0 && note.matured <= block.timestamp && note.payout != 0;
     }
 }

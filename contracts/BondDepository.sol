@@ -31,7 +31,6 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
     Terms[] public terms; // deposit construction data
     Metadata[] public metadata; // extraneous market data
     mapping(uint256 => Adjustment) public adjustments; // control variable changes
-    string[] public names; 
 
     // Queries
     mapping(address => uint256[]) public marketsForQuote; // market IDs for quote token
@@ -42,8 +41,9 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
         IOlympusAuthority _authority,
         IERC20 _ohm,
         IgOHM _gohm,
-        IStaking _staking
-    ) NoteKeeper(_authority, _ohm, _gohm, _staking) {
+        IStaking _staking,
+        ITreasury _treasury
+    ) NoteKeeper(_authority, _ohm, _gohm, _staking, _treasury) {
         // save gas for users by bulk approving stake() transactions
         _ohm.approve(address(_staking), 1e45);
     }
@@ -276,16 +276,12 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
      * @return id_         ID of new bond market
      */
     function create(
-        string memory _name,
         IERC20 _quoteToken,
         uint256[3] memory _market,
         bool[2] memory _booleans,
         uint256[2] memory _terms,
         uint32[2] memory _intervals
     ) external override onlyPolicy returns (uint256 id_) {
-
-         names.push(_name);
-         
         // the length of the program, in seconds
         uint256 secondsToConclusion = _terms[1] - block.timestamp;
 

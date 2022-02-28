@@ -9,12 +9,12 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
-    await deploy(CONTRACTS.DAI, {
-        from: deployer,
-        args: [0],
-        log: true,
-        skipIfAlreadyDeployed: true,
-    });
+    // await deploy(CONTRACTS.DAI, {
+    //     from: deployer,
+    //     args: [0],
+    //     log: true,
+    //     skipIfAlreadyDeployed: true,
+    // });
 };
 
 export default func;

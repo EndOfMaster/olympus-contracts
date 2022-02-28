@@ -13,6 +13,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const ohmDeployment = await deployments.get(CONTRACTS.ohm);
     const gOhmDeployment = await deployments.get(CONTRACTS.gOhm);
     const stakingDeployment = await deployments.get(CONTRACTS.staking);
+    const treasuryDeployment = await deployments.get(CONTRACTS.treasury)
 
     // TODO: firstEpochBlock is passed in but contract constructor param is called _nextEpochBlock
     await deploy(CONTRACTS.bondDepo, {
@@ -22,6 +23,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
             ohmDeployment.address,
             gOhmDeployment.address,
             stakingDeployment.address,
+            treasuryDeployment.address
         ],
         log: true,
     });
@@ -34,7 +36,6 @@ func.dependencies = [
     CONTRACTS.ohm,
     CONTRACTS.gohm,
     CONTRACTS.staking,
-    CONTRACTS.DAI,
     CONTRACTS.treasury,
 ];
 

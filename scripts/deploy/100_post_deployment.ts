@@ -13,7 +13,7 @@ import {
     OlympusTreasury__factory,
     LUSDAllocator__factory,
     IBondDepository__factory,
-    DAI__factory
+    OlympusTokenMigrator__factory
 } from "../../types";
 
 // TODO: Shouldn't run setup methods if the contracts weren't redeployed.
@@ -31,7 +31,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const stakingDeployment = await deployments.get(CONTRACTS.staking);
     const lusdAllocatorDeployment = await deployments.get(CONTRACTS.lusdAllocator);
     const bondDepoDeployment = await deployments.get(CONTRACTS.bondDepo);
-    const daiDeployment = await deployments.get(CONTRACTS.DAI);
+    const migratorDeployment = await deployments.get(CONTRACTS.migrator);
+
+    // const daiDeployment = await deployments.get(CONTRACTS.DAI);
+    const DAIFactory = await ethers.getContractFactory("DAI")
+    const daiDeployment = DAIFactory.attach("0x66bb55F31FDcc98d14Ec0C17D5535707CD99b93a")
 
     const authorityContract = await OlympusAuthority__factory.connect(
         authorityDeployment.address,
@@ -45,6 +49,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const treasury = OlympusTreasury__factory.connect(treasuryDeployment.address, signer);
     const lusdAllocator = LUSDAllocator__factory.connect(lusdAllocatorDeployment.address, signer);
     const bondDepo = IBondDepository__factory.connect(bondDepoDeployment.address, signer);
+    const migrator = OlympusTokenMigrator__factory.connect(migratorDeployment.address, signer);
 
     //Step 1: Set treasury as vault on authority
     // await waitFor(authorityContract.pushVault(treasury.address, true));
@@ -71,6 +76,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     // await waitFor(distributor.addRecipient(staking.address, INITIAL_REWARD_RATE));
     // console.log("Setup -- distributor.setBounty && distributor.addRecipient");
 
+    // add gOHM minter 
+    await waitFor(gOhm.addMinter(staking.address))
+    await waitFor(gOhm.addMinter(migrator.address))
+    console.log("gOHM add Minter done");
+
     let capacity = 10000e9;
     let initialPrice = 400e9;
     let buffer = 2e5;
@@ -81,14 +91,19 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     let depositInterval = 60 * 60 * 4;
     let tuneInterval = 60 * 60;
+    console.log("daiDeployment: ", daiDeployment.address);
 
+    // Set bondDepo as minter on treasury
+    // await waitFor(treasury.enable(8, bondDepoDeployment.address, ethers.constants.AddressZero)); // Allows distributor to mint ohm.
+    // console.log("Setup -- treasury.enable(8):  bondDepoDeployment enabled to mint ohm on treasury");
+
+    //create bond met
     await waitFor(bondDepo.create(
-        "dai",
         daiDeployment.address,
-        [capacity, initialPrice, buffer],
-        [false, true],
-        [vesting, conclusion],
-        [depositInterval, tuneInterval]
+        [ethers.BigNumber.from('10000000000000000000000000'), 60000000000, 1000000],
+        [true, true],
+        [100, 1677008640],
+        [14400, 86400]
     ))
     console.log("Setup -- create bonds");
 

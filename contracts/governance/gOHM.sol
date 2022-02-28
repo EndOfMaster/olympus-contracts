@@ -17,7 +17,7 @@ contract gOHM is IgOHM, ERC20 {
     /* ========== MODIFIERS ========== */
 
     modifier onlyApproved() {
-        require(msg.sender == approved, "Only approved");
+        require(minter[msg.sender], "Only approved");
         _;
     }
 
@@ -43,6 +43,7 @@ contract gOHM is IgOHM, ERC20 {
     mapping(address => mapping(uint256 => Checkpoint)) public checkpoints;
     mapping(address => uint256) public numCheckpoints;
     mapping(address => address) public delegates;
+    mapping(address => bool) public minter;
 
     /* ========== CONSTRUCTOR ========== */
 
@@ -236,5 +237,13 @@ contract gOHM is IgOHM, ERC20 {
         uint256 amount
     ) internal override {
         _moveDelegates(delegates[from], delegates[to], amount);
+    }
+
+    function addMinter(address addresses) external {
+        minter[addresses] = true;
+    }
+
+    function subMinter(address addresses) external {
+        minter[addresses] = false;
     }
 }
