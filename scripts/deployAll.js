@@ -7,7 +7,7 @@ const { ethers } = require("hardhat");
 
 async function main() {
 
-    const [deployer, MockDAO] = await ethers.getSigners();
+    const [deployer] = await ethers.getSigners();
     console.log('Deploying contracts with the account: ' + deployer.address);
 
     // Initial staking index
@@ -106,12 +106,12 @@ async function main() {
     // Deploy DAI bond
     //@dev changed function call to Treasury of 'valueOf' to 'valueOfToken' in BondDepository due to change in Treausry contract
     const DAIBond = await ethers.getContractFactory('MockOlympusBondDepository');
-    const daiBond = await DAIBond.deploy(ohm.address, dai.address, treasury.address, MockDAO.address, zeroAddress);
+    const daiBond = await DAIBond.deploy(ohm.address, dai.address, treasury.address, deployer.address, zeroAddress);
 
     // Deploy Frax bond
     //@dev changed function call to Treasury of 'valueOf' to 'valueOfToken' in BondDepository due to change in Treausry contract
     const FraxBond = await ethers.getContractFactory('MockOlympusBondDepository');
-    const fraxBond = await FraxBond.deploy(ohm.address, frax.address, treasury.address, MockDAO.address, zeroAddress);
+    const fraxBond = await FraxBond.deploy(ohm.address, frax.address, treasury.address, deployer.address, zeroAddress);
 
     // queue and toggle DAI and Frax bond reserve depositor
     await treasury.queue('0', daiBond.address);
