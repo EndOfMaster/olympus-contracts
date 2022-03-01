@@ -33,9 +33,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const bondDepoDeployment = await deployments.get(CONTRACTS.bondDepo);
     const migratorDeployment = await deployments.get(CONTRACTS.migrator);
 
-    // const daiDeployment = await deployments.get(CONTRACTS.DAI);
-    const DAIFactory = await ethers.getContractFactory("DAI")
-    const daiDeployment = DAIFactory.attach("0x66bb55F31FDcc98d14Ec0C17D5535707CD99b93a")
+    const daiDeployment = await deployments.get(CONTRACTS.DAI);
+    // const DAIFactory = await ethers.getContractFactory("DAI")
+    // const daiDeployment = DAIFactory.attach("0x66bb55F31FDcc98d14Ec0C17D5535707CD99b93a")
 
     const authorityContract = await OlympusAuthority__factory.connect(
         authorityDeployment.address,
@@ -91,7 +91,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     let depositInterval = 60 * 60 * 4;
     let tuneInterval = 60 * 60;
-    console.log("daiDeployment: ", daiDeployment.address);
 
     // Set bondDepo as minter on treasury
     // await waitFor(treasury.enable(8, bondDepoDeployment.address, ethers.constants.AddressZero)); // Allows distributor to mint ohm.
