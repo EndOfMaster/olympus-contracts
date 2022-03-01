@@ -76,39 +76,36 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     // await waitFor(distributor.addRecipient(staking.address, INITIAL_REWARD_RATE));
     // console.log("Setup -- distributor.setBounty && distributor.addRecipient");
 
-    // add gOHM minter 
-    await waitFor(gOhm.addMinter(staking.address))
-    await waitFor(gOhm.addMinter(migrator.address))
-    console.log("gOHM add Minter done");
+    // // add gOHM minter 
+    // await waitFor(gOhm.addMinter(staking.address))
+    // await waitFor(gOhm.addMinter(migrator.address))
+    // console.log("gOHM add Minter done");
 
-    let capacity = 10000e9;
-    let initialPrice = 400e9;
-    let buffer = 2e5;
+    // let capacity = 10000e9;
+    // let initialPrice = 400e9;
+    // let buffer = 2e5;
 
-    let vesting = 100;
-    let timeToConclusion = 60 * 60 * 24;
-    let conclusion = (await getCurrentTime()) + timeToConclusion
+    // let vesting = 100;
+    // let timeToConclusion = 60 * 60 * 24;
+    // let conclusion = (await getCurrentTime()) + timeToConclusion
 
-    let depositInterval = 60 * 60 * 4;
-    let tuneInterval = 60 * 60;
+    // let depositInterval = 60 * 60 * 4;
+    // let tuneInterval = 60 * 60;
 
-    // Set bondDepo as minter on treasury
+    // // Set bondDepo as minter on treasury
     // await waitFor(treasury.enable(8, bondDepoDeployment.address, ethers.constants.AddressZero)); // Allows distributor to mint ohm.
     // console.log("Setup -- treasury.enable(8):  bondDepoDeployment enabled to mint ohm on treasury");
 
-    //create bond met
-    await waitFor(bondDepo.create(
-        daiDeployment.address,
-        [ethers.BigNumber.from('10000000000000000000000000'), 60000000000, 1000000],
-        [true, true],
-        [100, 1677008640],
-        [14400, 86400]
-    ))
-    console.log("Setup -- create bonds");
+    // //create bond met
+    // await waitFor(bondDepo.create(
+    //     daiDeployment.address,
+    //     [ethers.BigNumber.from('10000000000000000000000000'), 60000000000, 1000000],
+    //     [true, true],
+    //     [100, 1677008640],
+    //     [14400, 86400]
+    // ))
+    // console.log("Setup -- create bonds");
 
-    // Approve staking contact to spend deployer's OHM
-    // TODO: Is this needed?
-    // await ohm.approve(staking.address, LARGE_APPROVAL);
 };
 
 func.tags = ["setup"];

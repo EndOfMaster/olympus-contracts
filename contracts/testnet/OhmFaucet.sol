@@ -16,6 +16,6 @@ contract OhmFaucet is Ownable {
     }
 
     function dispense() external {
-        ohm.transfer(msg.sender, 1e9);
+        ohm.transfer(msg.sender, 1e10);
     }
 }

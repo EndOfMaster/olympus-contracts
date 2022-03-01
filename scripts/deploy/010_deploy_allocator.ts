@@ -18,7 +18,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const stabilityPool = "0xFd0dB2BA8BEaC72d45f12A76f40c345BBf5f6F8d";
     const stakingPool = "0x35D3293EA6dD210b8Ca25668ae266ca4C834Ea1b";
     const weth = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
-    const hopTokenAddress = "0x66bb55F31FDcc98d14Ec0C17D5535707CD99b93a"; // DAI
+
+    const daiDeployment = await deployments.get(CONTRACTS.DAI)
 
     await deploy(CONTRACTS.lusdAllocator, {
         from: deployer,
@@ -31,7 +32,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
             stakingPool,
             "0x0000000000000000000000000000000000000000",
             weth,
-            hopTokenAddress,
+            daiDeployment.address,
             "0x0000000000000000000000000000000000000000",
         ],
         log: true,
@@ -39,6 +40,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 };
 
 func.tags = [CONTRACTS.distributor, "lusdallocator"];
-func.dependencies = [CONTRACTS.treasury];
+func.dependencies = [CONTRACTS.treasury, CONTRACTS.DAI];
 
 export default func;
