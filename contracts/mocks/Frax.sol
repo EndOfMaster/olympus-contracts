@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicensed
-pragma solidity 0.7.5;
+pragma solidity 0.8.10;
 
 contract LibNote {
     event LogNote(
@@ -161,7 +161,7 @@ contract FRAX is LibNote {
         uint256 wad
     ) public returns (bool) {
         require(balanceOf[src] >= wad, "Frax/insufficient-balance");
-        if (src != msg.sender && _allowance(src, msg.sender) != uint256(-1)) {
+        if (src != msg.sender && _allowance(src, msg.sender) != type(uint256).max) {
             require(_allowance(src, msg.sender) >= wad, "Frax/insufficient-allowance");
             allowances[src][msg.sender] = sub(_allowance(src, msg.sender), wad);
         }
@@ -203,7 +203,7 @@ contract FRAX is LibNote {
 
     function burn(address usr, uint256 wad) external {
         require(balanceOf[usr] >= wad, "Frax/insufficient-balance");
-        if (usr != msg.sender && _allowance(usr, msg.sender) != uint256(-1)) {
+        if (usr != msg.sender && _allowance(usr, msg.sender) != type(uint256).max) {
             require(_allowance(usr, msg.sender) >= wad, "Frax/insufficient-allowance");
             allowances[usr][msg.sender] = sub(_allowance(usr, msg.sender), wad);
         }
@@ -263,7 +263,7 @@ contract FRAX is LibNote {
         require(holder == ecrecover(digest, v, r, s), "Frax/invalid-permit");
         require(expiry == 0 || block.timestamp <= expiry, "Frax/permit-expired");
         require(nonce == nonces[holder]++, "Frax/invalid-nonce");
-        uint256 wad = allowed ? uint256(-1) : 0;
+        uint256 wad = allowed ? type(uint256).max : 0;
         allowances[holder][spender] = wad;
         emit Approval(holder, spender, wad);
     }

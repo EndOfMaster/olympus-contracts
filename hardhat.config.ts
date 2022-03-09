@@ -2,7 +2,7 @@ import "@typechain/hardhat";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-etherscan";
-import "hardhat-gas-reporter";
+// import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "@openzeppelin/hardhat-upgrades";
 
@@ -41,12 +41,12 @@ function getChainConfig(network: keyof typeof chainIds): NetworkUserConfig {
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat",
-    gasReporter: {
-        currency: "USD",
-        enabled: process.env.REPORT_GAS ? true : false,
-        excludeContracts: [],
-        src: "./contracts",
-    },
+    // gasReporter: {
+    //     currency: "USD",
+    //     enabled: process.env.REPORT_GAS ? true : false,
+    //     excludeContracts: [],
+    //     src: "./contracts",
+    // },
     networks: {
         hardhat: {
             forking: {
@@ -69,45 +69,6 @@ const config: HardhatUserConfig = {
     },
     solidity: {
         compilers: [
-            {
-                version: "0.8.10",
-                settings: {
-                    metadata: {
-                        bytecodeHash: "none",
-                    },
-                    optimizer: {
-                        enabled: true,
-                        runs: 200,
-                    },
-                },
-            },
-            {
-                version: "0.8.10",
-                settings: {
-                    metadata: {
-                        bytecodeHash: "none",
-                    },
-                    optimizer: {
-                        enabled: true,
-                        runs: 200,
-                    },
-                },
-            },
-            {
-                version: "0.7.5",
-                settings: {
-                    metadata: {
-                        bytecodeHash: "none",
-                    },
-                    optimizer: {
-                        enabled: true,
-                        runs: 200,
-                    },
-                },
-            },
-            {
-                version: "0.5.16",
-            },
             {
                 version: "0.8.10",
                 settings: {

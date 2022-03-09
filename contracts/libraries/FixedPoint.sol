@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.7.5;
+pragma solidity 0.8.10;
 
 import "./FullMath.sol";
 
@@ -110,13 +110,13 @@ library FixedPoint {
         require(denominator > 0, "FixedPoint::fraction: division by zero");
         if (numerator == 0) return FixedPoint.uq112x112(0);
 
-        if (numerator <= uint144(-1)) {
+        if (numerator <= type(uint144).max) {
             uint256 result = (numerator << RESOLUTION) / denominator;
-            require(result <= uint224(-1), "FixedPoint::fraction: overflow");
+            require(result <= type(uint224).max, "FixedPoint::fraction: overflow");
             return uq112x112(uint224(result));
         } else {
             uint256 result = FullMath.mulDiv(numerator, Q112, denominator);
-            require(result <= uint224(-1), "FixedPoint::fraction: overflow");
+            require(result <= type(uint224).max, "FixedPoint::fraction: overflow");
             return uq112x112(uint224(result));
         }
     }
@@ -124,7 +124,7 @@ library FixedPoint {
     // square root of a UQ112x112
     // lossy between 0/1 and 40 bits
     function sqrt(uq112x112 memory self) internal pure returns (uq112x112 memory) {
-        if (self._x <= uint144(-1)) {
+        if (self._x <= type(uint144).max) {
             return uq112x112(uint224(Babylonian.sqrt(uint256(self._x) << 112)));
         }
 

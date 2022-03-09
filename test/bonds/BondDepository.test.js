@@ -14,10 +14,7 @@ describe("Bond Depository", async () => {
     let erc20Factory;
     let authFactory;
     let gOhmFactory;
-    let sOhmFactory;
     let depositoryFactory;
-    let treasuryFactory;
-    let stakingFactiory;
 
     let auth;
     let dai;
@@ -26,7 +23,6 @@ describe("Bond Depository", async () => {
     let treasury;
     let gOHM;
     let staking;
-    let sOHM;
 
     let capacity = 10000e9;
     let initialPrice = 400e9;
@@ -52,20 +48,17 @@ describe("Bond Depository", async () => {
         [deployer, alice, bob, carol] = await ethers.getSigners();
 
         authFactory = await ethers.getContractFactory("OlympusAuthority");
-        erc20Factory = await ethers.getContractFactory("MockERC20");
-        gOhmFactory = await ethers.getContractFactory("MockGOhm");
-        sOhmFactory = await ethers.getContractFactory("MockSOHM");
+        erc20Factory = await smock.mock("MockERC20");
+        gOhmFactory = await smock.mock("MockGOhm");
+
         depositoryFactory = await ethers.getContractFactory("OlympusBondDepositoryV2");
-        treasuryFactory = await ethers.getContractFactory("OlympusTreasury");
-        stakingFactiory = await ethers.getContractFactory("OlympusStaking");
 
         const block = await ethers.provider.getBlock("latest");
         conclusion = block.timestamp + timeToConclusion;
     });
 
-    it("foreach", async () => {
+    beforeEach(async () => {
         dai = await erc20Factory.deploy("Dai", "DAI", 18);
-        console.log("dai address: ", dai.address);
 
         auth = await authFactory.deploy(
             deployer.address,
@@ -73,73 +66,40 @@ describe("Bond Depository", async () => {
             deployer.address,
             deployer.address
         );
-        console.log("auth address: ", auth.address);
-
         ohm = await erc20Factory.deploy("Olympus", "OHM", 9);
-        console.log("ohm address: ", ohm.address);
-
-        treasury = await treasuryFactory.deploy(ohm.address, 0, auth.address)
-        console.log("treasury address: ", treasury.address);
-
-        await auth.pushVault(treasury.address,true)
-        console.log("auth.pushVault done ");
-
-        sOHM = await sOhmFactory.deploy("1000000000", "10000000");
-        console.log("sOHM address: ", sOHM.address);
-
+        treasury = await smock.fake("ITreasury");
         gOHM = await gOhmFactory.deploy("50000000000"); // Set index as 50
-        console.log("gOHM address: ", gOHM.address);
-
-        staking = await stakingFactiory.deploy(ohm.address, sOHM.address, gOHM.address, 2200, 550, 9505000, auth.address)
-        console.log("staking address: ", staking.address);
-
+        staking = await smock.fake("OlympusStaking");
         depository = await depositoryFactory.deploy(
             auth.address,
             ohm.address,
             gOHM.address,
-            staking.address
-            // treasury.address
+            staking.address,
+            treasury.address
         );
-
-        console.log("depository address: ", depository.address);
 
         // Setup for each component
         await dai.mint(bob.address, initialMint);
-        console.log("dai mint done");
 
         // To get past OHM contract guards
-        // await auth.pushVault(treasury.address, true);
+        await auth.pushVault(treasury.address, true);
 
         await dai.mint(deployer.address, initialDeposit);
-        console.log("dai mint2 done");
-
         await dai.approve(treasury.address, initialDeposit);
-        console.log("dai approve done");
-
         //await treasury.deposit(initialDeposit, dai.address, "10000000000000");
         await ohm.mint(deployer.address, "10000000000000");
-        console.log("ohm mint done");
-
-        // await treasury.baseSupply.returns(await ohm.totalSupply());
+        await treasury.baseSupply.returns(await ohm.totalSupply());
 
         // Mint enough gOHM to payout rewards
         await gOHM.mint(depository.address, "1000000000000000000000");
-        console.log("gOHM mint done");
 
         await ohm.connect(alice).approve(depository.address, LARGE_APPROVAL);
-        console.log("ohm approve1 done");
-
         await dai.connect(bob).approve(depository.address, LARGE_APPROVAL);
-        console.log("dai approve1 done");
 
         await depository.setRewards(refReward, daoReward);
-        console.log("depository.setRewards done");
-
         await depository.whitelist(carol.address);
-        console.log("depository.whitelist done");
 
         await dai.connect(alice).approve(depository.address, capacity);
-        console.log("dai.approve done");
 
         // create the first bond
         await depository.create(
@@ -149,9 +109,6 @@ describe("Bond Depository", async () => {
             [vesting, conclusion],
             [depositInterval, tuneInterval]
         );
-
-        let a = await depository.markets(0);
-        console.log(a);
     });
 
     it("should create market", async () => {

@@ -30,6 +30,9 @@
  * Please see the system Readme for an overview:
  * https://github.com/liquity/dev/blob/main/README.md#lqty-issuance-to-stability-providers
  */
+ //SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.10;
+
 interface IStabilityPool {
     // --- Functions ---
     /*

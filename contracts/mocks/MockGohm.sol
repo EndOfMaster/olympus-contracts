@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity 0.8.10;
 
 //import {IgOHM} from "../interfaces/IgOHM.sol";
 import {MockERC20} from "./MockERC20.sol";

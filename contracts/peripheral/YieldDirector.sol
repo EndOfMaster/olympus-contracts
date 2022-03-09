@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity ^0.8.10;
+pragma solidity 0.8.10;
 
 import {IERC20} from "../interfaces/IERC20.sol";
 import {IsOHM} from "../interfaces/IsOHM.sol";

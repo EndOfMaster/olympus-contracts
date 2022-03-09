@@ -29,3 +29,4 @@ deployments/**/solcinputs
 /flatten
 
 package-lock.json
+yarn.lock

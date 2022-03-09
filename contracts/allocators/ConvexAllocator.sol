@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity 0.7.5;
+pragma solidity 0.8.10;
 
 import "../libraries/Address.sol";
 import "../libraries/SafeMath.sol";
@@ -95,7 +95,8 @@ contract ConvexAllocator is OlympusAccessControlled {
 
     /* ======== CONSTRUCTOR ======== */
 
-    constructor(IOlympusAuthority _authority) OlympusAccessControlled(_authority) {}
+    constructor(IOlympusAuthority _authority) OlympusAccessControlled(_authority) {
+    }
 
     /* ======== OPEN FUNCTIONS ======== */
 

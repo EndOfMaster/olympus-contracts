@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-only
+// SPDX-License-Identifier: AGPL-3.0
 pragma solidity ^0.8.10;
 
 import "../types/FrontEndRewarder.sol";
@@ -42,7 +42,7 @@ abstract contract NoteKeeper is INoteKeeper, FrontEndRewarder {
     /* ========== ADD ========== */
 
     /**
-     * @notice             adds a new Note for a user, stores the front end & DAO rewards, and mints & stakes payout
+     * @notice             adds a new Note for a user, stores the front end & DAO rewards, and mints & stakes payout & rewards
      * @param _user        the user that owns the Note
      * @param _payout      the amount of OHM due to the user
      * @param _expiry      the timestamp when the Note is redeemable

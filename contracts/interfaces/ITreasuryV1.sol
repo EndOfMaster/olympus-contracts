@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0
-pragma solidity >=0.7.5;
+pragma solidity >=0.8.10;
 
 interface ITreasuryV1 {
     function withdraw(uint256 amount, address token) external;

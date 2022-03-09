@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 
 //Copied from https://github.com/gnosis/mock-contract/blob/b3db814ac41a3b632d8441cd1fbfbfce54e056f7/contracts/MockContract.sol but removed call "encodeWithSignature("updateInvocationCount" towards end
-pragma solidity >=0.7.0 <0.8.0;
+pragma solidity 0.8.10;
 
 interface MockInterface {
     /**
@@ -164,7 +164,7 @@ contract MockContract is MockInterface {
     }
 
     function givenAnyReturnAddress(address response) external override {
-        _givenAnyReturn(uintToBytes(uint256(response)));
+        _givenAnyReturn(uintToBytes(uint256(uint160(response))));
     }
 
     function givenAnyRevert() external override {
@@ -201,7 +201,7 @@ contract MockContract is MockInterface {
     }
 
     function givenCalldataReturnAddress(bytes calldata call, address response) external override {
-        _givenCalldataReturn(call, uintToBytes(uint256(response)));
+        _givenCalldataReturn(call, uintToBytes(uint256(uint160(response))));
     }
 
     function _givenMethodReturn(bytes memory call, bytes memory response) private {
@@ -225,7 +225,7 @@ contract MockContract is MockInterface {
     }
 
     function givenMethodReturnAddress(bytes calldata call, address response) external override {
-        _givenMethodReturn(call, uintToBytes(uint256(response)));
+        _givenMethodReturn(call, uintToBytes(uint256(uint160(response))));
     }
 
     function givenCalldataRevert(bytes calldata call) external override {
