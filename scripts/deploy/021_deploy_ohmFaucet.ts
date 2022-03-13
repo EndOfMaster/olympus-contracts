@@ -57,7 +57,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     // Deposit and mint ohm
     await waitFor(mockDai.approve(treasury.address, daiAmount)); // Approve treasury to use the dai
-    await waitFor(treasury.deposit(daiAmount, daiDeployment.address, INITIAL_MINT_PROFIT)); // Deposit Dai into treasury, with a profit set, so that we have reserves for staking
+    await waitFor(treasury.deposit(daiAmount, daiDeployment.address, 0)); // Deposit Dai into treasury, with a profit set, so that we have reserves for staking
     const ohmMinted = await ohm.balanceOf(deployer);
     console.log("Ohm minted: ", ohmMinted.toString());
 
@@ -71,6 +71,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
 func.tags = ["faucet", "testnet"];
 func.dependencies = [CONTRACTS.ohm, CONTRACTS.DAI, CONTRACTS.treasury];
-func.runAtTheEnd = true;
 
 export default func;

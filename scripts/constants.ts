@@ -11,7 +11,7 @@ export const CONTRACTS: Record<string, string> = {
     authority: "OlympusAuthority",
     migrator: "OlympusTokenMigrator",
     FRAX: "Frax",
-    DAI: "DAI",
+    DAI: "MockERC20",
     lusdAllocator: "LUSDAllocator",
 };
 
