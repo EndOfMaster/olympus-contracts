@@ -98,7 +98,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         daiDeployment.address,
         [ethers.BigNumber.from('10000000000000000000000000'), 60000000000, 1000000],
         [true, true],
-        [100, 1677008640],
+        [1800, 1677008640],
         [14400, 86400]
     ))
     console.log("Setup -- create bonds");

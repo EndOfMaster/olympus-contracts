@@ -114,6 +114,7 @@ contract OlympusTreasury is OlympusAccessControlled, ITreasury {
         address _token,
         uint256 _profit
     ) external override returns (uint256 send_) {
+        //验证权限
         if (permissions[STATUS.RESERVETOKEN][_token]) {
             require(permissions[STATUS.RESERVEDEPOSITOR][msg.sender], notApproved);
         } else if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {
@@ -122,10 +123,13 @@ contract OlympusTreasury is OlympusAccessControlled, ITreasury {
             revert(invalidToken);
         }
 
+        //把bond的代币转进来
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 
+        //算法分别计算普通token和lp token的value
         uint256 value = tokenValue(_token, _amount);
         // mint OHM needed and store amount of rewards for distribution
+        //mint ohm 但是会分一部分_profit留在这里，剩下的给到调用者
         send_ = value.sub(_profit);
         OHM.mint(msg.sender, send_);
 

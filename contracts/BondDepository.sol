@@ -85,10 +85,12 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
         require(currentTime < term.conclusion, "Depository: market concluded");
 
         // Debt and the control variable decay over time
+        //债务衰减控制
         _decay(_id, currentTime);
 
         // Users input a maximum price, which protects them from price changes after
         // entering the mempool. max price is a slippage mitigation measure
+        //价格计算算法
         uint256 price = _marketPrice(_id);
         require(price <= _maxPrice, "Depository: more than max price");
 
@@ -102,10 +104,13 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          *
          * 1e18 = OHM decimals (9) + price decimals (9)
          */
+        // 用quote token的数量 / 用quote计算的price) / quoteDecimals
+        //           dai             ohm price     dai Decimal
         payout_ = ((_amount * 1e18) / price) / (10**metadata[_id].quoteDecimals);
 
         // markets have a max payout amount, capping size because deposits
         // do not experience slippage. max payout is recalculated upon tuning
+        //create时计算的市场规模
         require(payout_ <= market.maxPayout, "Depository: max size exceeded");
 
         /*
@@ -117,6 +122,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * or the number of quote tokens that the market can buy
          * (if capacity in quote is true)
          */
+        //amount: quote token amount, payout_: ohm amount
         market.capacity -= market.capacityInQuote ? _amount : payout_;
 
         /**
@@ -134,13 +140,16 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * i.e. expiration = day 10. when alice deposits on day 1, her term
          * is 9 days. when bob deposits on day 2, his term is 8 days.
          */
+        //如果是固定时间, vesting是个间隔，所以就加上现在的时间, 否则他就是个时间戳
         expiry_ = term.fixedTerm ? term.vesting + currentTime : term.vesting;
 
         // markets keep track of how many quote tokens have been
         // purchased, and how much OHM has been sold
+        //进入了多少qoute token
         market.purchased += _amount;
+        //mint 多少 ohm
         market.sold += uint64(payout_);
-
+        //记录债务总额
         // incrementing total debt raises the price of the next bond
         market.totalDebt += uint64(payout_);
 
@@ -152,6 +161,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
          * is redeemable, the time when payout was redeemed, and the ID
          * of the market deposited into
          */
+        //记录用户信息, mint ohm 并且存入 staking, 这个相当于bond存入的, sender在staking查不到信息
         index_ = addNote(_user, payout_, uint48(expiry_), uint48(_id), _referral);
 
         // transfer payment to treasury
@@ -159,6 +169,7 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
 
         // if max debt is breached, the market is closed
         // this a circuit breaker
+        //调整市场规模, 如果没有了就关闭, 还有剩余就计算参数
         if (term.maxDebt < market.totalDebt) {
             market.capacity = 0;
             emit CloseMarket(_id);
@@ -269,10 +280,10 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
      * @notice             creates a new market type
      * @dev                current price should be in 9 decimals.
      * @param _quoteToken  token used to deposit
-     * @param _market      [capacity (in OHM or quote), initial price / OHM (9 decimals), debt buffer (3 decimals)]
+     * @param _market      [数量, 初始价格(带上小数), 可以负债的缓冲(3位小数)], [capacity (in OHM or quote), initial price / OHM (9 decimals), debt buffer (3 decimals)]
      * @param _booleans    [capacity in quote, fixed term]
-     * @param _terms       [vesting length (if fixed term) or vested timestamp, conclusion timestamp]
-     * @param _intervals   [deposit interval (seconds), tune interval (seconds)]
+     * @param _terms       []   [vesting length (if fixed term) or vested timestamp, conclusion timestamp]
+     * @param _intervals   [存款间隔, 调整间隔][deposit interval (seconds), tune interval (seconds)]
      * @return id_         ID of new bond market
      */
     function create(

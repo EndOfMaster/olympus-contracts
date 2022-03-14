@@ -8,7 +8,7 @@ interface IBondDepository {
     struct Market {
         uint256 capacity; // capacity remaining
         IERC20 quoteToken; // token to accept as payment
-        bool capacityInQuote; // capacity limit is in payment token (true) or in OHM (false, default)
+        bool capacityInQuote; //true: 容量限制在quote token, false: 限制在ohm capacity limit is in payment token (true) or in OHM (false, default)
         uint64 totalDebt; // total debt from market
         uint64 maxPayout; // max tokens in/out (determined by capacityInQuote false/true, respectively)
         uint64 sold; // base tokens out
@@ -17,8 +17,8 @@ interface IBondDepository {
 
     // Info for creating new markets
     struct Terms {
-        bool fixedTerm; // fixed term or fixed expiration
-        uint64 controlVariable; // scaling variable for price
+        bool fixedTerm; // 是否固定期限 fixed term or fixed expiration
+        uint64 controlVariable; //价格缩放变量 scaling variable for price
         uint48 vesting; // length of time from deposit to maturity if fixed-term
         uint48 conclusion; // timestamp when market no longer offered (doubles as time when market matures
         uint64 maxDebt; // 9 decimal debt maximum in OHM
