@@ -123,7 +123,7 @@ contract OlympusTreasury is OlympusAccessControlled, ITreasury {
             revert(invalidToken);
         }
 
-        //把bond的代币转进来
+        //代币转进来
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 
         //算法分别计算普通token和lp token的value
@@ -138,11 +138,14 @@ contract OlympusTreasury is OlympusAccessControlled, ITreasury {
         emit Deposit(_token, _amount, value);
     }
 
+    //TODO 预估是手动销毁ohm获得其他资产代币，再买入ohm来销毁，或是用上面deposit用token提供ohm
+
     /**
      * @notice allow approved address to burn OHM for reserves
      * @param _amount uint256
      * @param _token address
      */
+    //销毁 ohm 转走 token
     function withdraw(uint256 _amount, address _token) external override {
         require(permissions[STATUS.RESERVETOKEN][_token], notAccepted); // Only reserves can be used for redemptions
         require(permissions[STATUS.RESERVESPENDER][msg.sender], notApproved);
@@ -162,6 +165,7 @@ contract OlympusTreasury is OlympusAccessControlled, ITreasury {
      * @param _token address
      * @param _amount uint256
      */
+    //批准的地址转走资产
     function manage(address _token, uint256 _amount) external override {
         if (permissions[STATUS.LIQUIDITYTOKEN][_token]) {
             require(permissions[STATUS.LIQUIDITYMANAGER][msg.sender], notApproved);

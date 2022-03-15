@@ -165,7 +165,9 @@ contract OlympusBondDepositoryV2 is IBondDepository, NoteKeeper {
         index_ = addNote(_user, payout_, uint48(expiry_), uint48(_id), _referral);
 
         // transfer payment to treasury
+        //将全部quoteToken amount转入 treasury
         market.quoteToken.safeTransferFrom(msg.sender, address(treasury), _amount);
+        //TODO 可以在这里加入存入到lending
 
         // if max debt is breached, the market is closed
         // this a circuit breaker
