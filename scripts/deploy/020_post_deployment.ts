@@ -82,8 +82,8 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     let initialPrice = 400e9;
     let buffer = 2e5;
 
-    let vesting = 100;
-    let timeToConclusion = 60 * 60 * 24;
+    let vesting = 1800;
+    let timeToConclusion = 60 * 60 * 24 * 180;
     let conclusion = (await getCurrentTime()) + timeToConclusion
 
     let depositInterval = 60 * 60 * 4;
@@ -96,10 +96,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     //create bond met
     await waitFor(bondDepo.create(
         daiDeployment.address,
-        [ethers.BigNumber.from('10000000000000000000000000'), 60000000000, 1000000],
-        [true, true],
-        [1800, 1677008640],
-        [14400, 86400]
+        [capacity, initialPrice, buffer],
+        [false, true],
+        [vesting, conclusion],
+        [depositInterval, tuneInterval]
     ))
     console.log("Setup -- create bonds");
 

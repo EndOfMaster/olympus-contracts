@@ -111,7 +111,7 @@ contract gOHM is IgOHM, ERC20 {
 
     /**
         @notice converts gOHM amount to OHM
-        @param _amount uint
+        @param _amount uintbalanceTo
         @return uint
      */
     function balanceFrom(uint256 _amount) public view override returns (uint256) {

@@ -10,18 +10,39 @@ const stakingAddress = "0xBaE7DA942EA417F9FBd5dAa304AdCEFcAe454Ae3";
 const distributorAddress = "0x4CDEfcBd711558eB8A4175bE5AdFB92Cc3A36826";
 const bondAddress = "0x7B35f18C20E82C7DEBD5ecB0A43AfF26197BB01A";
 
+const capacity = 10000e9;
+const initialPrice = 400e9;
+//399948353843
+const buffer = 2e5;
+const vesting = 1800;
+const timeToConclusion = 60 * 60 * 24 * 180;
+const depositInterval = 60 * 60 * 4;
+const tuneInterval = 60 * 60;
+
 let bond;
 
 async function main() {
+    let conclusion = (await getCurrentTime()) + timeToConclusion
 
     bond = (await ethers.getContractFactory("OlympusBondDepositoryV2")).attach(bondAddress);
 
-    let liveMarkets = await bond.liveMarkets();
-    let liveMarketId = liveMarkets[0];
-    console.log(liveMarketId);
+    //BigNumber
+    let marketId = await bond.callStatic.create(daiAddress,
+        [capacity, initialPrice, buffer],
+        [false, true],
+        [vesting, conclusion],
+        [depositInterval, tuneInterval]
+    );
+    await bond.create(daiAddress,
+        [capacity, initialPrice, buffer],
+        [false, true],
+        [vesting, conclusion],
+        [depositInterval, tuneInterval]
+    );
 
-    let marketPrice = await bond.marketPrice(liveMarketId);
-    console.log("marketPrice: ", marketPrice);
+
+
+    console.log(a);
 
 }
 

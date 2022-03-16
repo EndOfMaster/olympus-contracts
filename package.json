@@ -10,8 +10,8 @@
     "@nomiclabs/hardhat-ethers": "2.0.4",
     "@nomiclabs/hardhat-etherscan": "^2.1.7",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "@openzeppelin/contracts":"4.5.0",
-    "@openzeppelin/contracts-upgradeable":"4.5.2",
+    "@openzeppelin/contracts": "4.5.0",
+    "@openzeppelin/contracts-upgradeable": "4.5.2",
     "@openzeppelin/hardhat-upgrades": "^1.12.0",
     "@rari-capital/solmate": "^6.2.0",
     "@typechain/ethers-v5": "^7.1.2",
@@ -59,8 +59,10 @@
     "sourcify:rinkeby": "hardhat --network rinkeby sourcify",
     "etherscan:mainnet": "hardhat --network mainnet etherscan-verify",
     "etherscan:rinkeby": "hardhat --network rinkeby etherscan-verify",
+    "etherscan:kovan": "hardhat --network kovan etherscan-verify",
     "prestart": "yarn run typechain",
-    "start": "hardhat node --network hardhat"
+    "start": "hardhat node --network hardhat",
+    "bond:kovan": "hardhat --network kovan run scripts/functionCaller.js"
   },
   "repository": {
     "type": "git",
