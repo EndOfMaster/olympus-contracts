@@ -159,6 +159,7 @@ contract Distributor is IDistributor, OlympusAccessControlled {
         @param _recipient address
         @param _rewardRate uint
      */
+    //目前只有add staking合约
     function addRecipient(address _recipient, uint256 _rewardRate) external override onlyGovernor {
         require(_recipient != address(0), "Zero address: Recipient");
         require(_rewardRate <= rateDenominator, "Rate cannot exceed denominator");

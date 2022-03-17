@@ -225,7 +225,7 @@ contract OlympusStaking is OlympusAccessControlled {
 
             epoch.end = epoch.end.add(epoch.length);
             epoch.number++;
-
+            //增发ohm, 而且是双份增发
             if (address(distributor) != address(0)) {
                 distributor.distribute();
                 bounty = distributor.retrieveBounty(); // Will mint ohm for this contract if there exists a bounty

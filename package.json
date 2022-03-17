@@ -53,6 +53,7 @@
     "deploy:mainnet": "hardhat --network mainnet deploy",
     "deploy:rinkeby": "hardhat --network rinkeby deploy",
     "deploy:kovan": "hardhat --network kovan deploy",
+    "deploy:kovan2": "hardhat --network kovan2 deploy",
     "deploy:ropsten": "hardhat --network ropsten deploy",
     "deploy:hardhat": "hardhat --network hardhat deploy",
     "sourcify:mainnet": "hardhat --network mainnet sourcify",
@@ -60,6 +61,7 @@
     "etherscan:mainnet": "hardhat --network mainnet etherscan-verify",
     "etherscan:rinkeby": "hardhat --network rinkeby etherscan-verify",
     "etherscan:kovan": "hardhat --network kovan etherscan-verify",
+    "etherscan:kovan2": "hardhat --network kovan2 etherscan-verify",
     "prestart": "yarn run typechain",
     "start": "hardhat node --network hardhat",
     "bond:kovan": "hardhat --network kovan run scripts/functionCaller.js"
