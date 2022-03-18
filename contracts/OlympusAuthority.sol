@@ -14,7 +14,9 @@ contract OlympusAuthority is IOlympusAuthority, OlympusAccessControlled {
 
     address public override policy;
 
-    address public override vault;
+    // address public override vault;
+
+    mapping(address => bool) public vault;
 
     address public newGovernor;
 
@@ -38,8 +40,8 @@ contract OlympusAuthority is IOlympusAuthority, OlympusAccessControlled {
         emit GuardianPushed(address(0), guardian, true);
         policy = _policy;
         emit PolicyPushed(address(0), policy, true);
-        vault = _vault;
-        emit VaultPushed(address(0), vault, true);
+        vault[_vault] = true;
+        emit VaultPushed(msg.sender, newVault, true);
     }
 
     /* ========== GOV ONLY ========== */
@@ -63,9 +65,8 @@ contract OlympusAuthority is IOlympusAuthority, OlympusAccessControlled {
     }
 
     function pushVault(address _newVault, bool _effectiveImmediately) external onlyGovernor {
-        if (_effectiveImmediately) vault = _newVault;
-        newVault = _newVault;
-        emit VaultPushed(vault, newVault, _effectiveImmediately);
+        vault[_newVault] = true;
+        emit VaultPushed(msg.sender, newVault, _effectiveImmediately);
     }
 
     /* ========== PENDING ROLE ONLY ========== */
@@ -89,8 +90,7 @@ contract OlympusAuthority is IOlympusAuthority, OlympusAccessControlled {
     }
 
     function pullVault() external {
-        require(msg.sender == newVault, "!newVault");
-        emit VaultPulled(vault, newVault);
-        vault = newVault;
+        require(vault[msg.sender], "!newVault");
+        emit VaultPulled(msg.sender, newVault);
     }
 }
