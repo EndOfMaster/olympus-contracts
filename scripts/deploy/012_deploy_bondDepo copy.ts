@@ -1,8 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { ethers } from "hardhat";
 import { DeployFunction } from "hardhat-deploy/types";
 import { CONTRACTS } from "../constants";
-import { waitFor } from "../txHelper";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = hre;
@@ -15,7 +13,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const stakingDeployment = await deployments.get(CONTRACTS.staking);
     const treasuryDeployment = await deployments.get(CONTRACTS.treasury)
 
-    // TODO: firstEpochBlock is passed in but contract constructor param is called _nextEpochBlock
     await deploy(CONTRACTS.bondDepo, {
         from: deployer,
         args: [

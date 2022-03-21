@@ -1,0 +1,15 @@
+{
+    "authorityPushVaultTreasury": true,
+    "authorityAddMinterPool": true,
+    "treasuryEnableDistributor": true,
+    "stakingSetDistributor": true,
+    "distributorSetBounty": true,
+    "distributorAddRecipientStaking": true,
+    "gOhmAddMinterStaking": true,
+    "gOhmAddMinterMigrator": true,
+    "treasuryEnableBondDepo": true,
+    "bondDepoCreate": true,
+    "sOhmSetIndex": true,
+    "sOhmSetgOHM": true,
+    "sOhmInitialize": true
+}

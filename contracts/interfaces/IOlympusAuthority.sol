@@ -22,5 +22,11 @@ interface IOlympusAuthority {
 
     function policy() external view returns (address);
 
-    function vault(address) external view returns (bool);
+    function vault() external view returns (address);
+
+    function addMinter(address) external;
+
+    function subMinter(address) external;
+
+    function minters(address) external view returns (bool);
 }

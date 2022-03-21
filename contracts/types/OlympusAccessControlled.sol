@@ -39,7 +39,7 @@ abstract contract OlympusAccessControlled {
     }
 
     modifier onlyVault() {
-        require(authority.vault(msg.sender), UNAUTHORIZED);
+        require(authority.minters(msg.sender), UNAUTHORIZED);
         _;
     }
 

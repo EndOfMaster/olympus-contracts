@@ -20,8 +20,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     const ohmDeployment = await deployments.get(CONTRACTS.ohm);
     const treasuryDeployment = await deployments.get(CONTRACTS.treasury);
-    // const DAIFactory = await ethers.getContractFactory("DAI")
-    // const daiDeployment = DAIFactory.attach("0x66bb55F31FDcc98d14Ec0C17D5535707CD99b93a")
     const daiDeployment = await deployments.get(CONTRACTS.DAI);
 
     const ohm = OlympusERC20Token__factory.connect(ohmDeployment.address, signer);
@@ -69,7 +67,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     console.log("Faucet balance:", faucetBalance.toString());
 };
 
-func.tags = ["faucet", "testnet"];
+func.tags = ["faucet"];
 func.dependencies = [CONTRACTS.ohm, CONTRACTS.DAI, CONTRACTS.treasury];
 
 export default func;

@@ -13,6 +13,7 @@ export const CONTRACTS: Record<string, string> = {
     FRAX: "Frax",
     DAI: "MockERC20",
     lusdAllocator: "LUSDAllocator",
+    pool: "OhmExchangePool",
 };
 
 // Constructor Arguments
