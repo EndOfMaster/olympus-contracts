@@ -1,14 +1,9 @@
 const { ethers } = require("hardhat");
 
-const daiAddress = "0x2A74f1AC0Ca5be44006dDD3B3eD14C05Ea38F162";
-const authorityAddress = "0xc6030F3Cc578F93Dc438c6a51AcabE81f45b358D";
-const sOhmAddress = "0x9ae6C2F75038Cce7Ed73B4724F934B2a2F76E4c2";
-const gOhmAddress = "0x3F6b053dFa7879A9AF7b11Ed22Ea56DB49ee7ecD";
-const ohmAddress = "0x4d33BDfa6A0C4DBF913b33E2415D0F6FC1d2425F";
-const treasuryAddress = "0x1AF8BFb98707D2982b1899cF9c58244f6D7B5fad";
-const stakingAddress = "0xBaE7DA942EA417F9FBd5dAa304AdCEFcAe454Ae3";
-const distributorAddress = "0x4CDEfcBd711558eB8A4175bE5AdFB92Cc3A36826";
-const bondAddress = "0x7B35f18C20E82C7DEBD5ecB0A43AfF26197BB01A";
+const daiAddress = "0xD4358ca848f51CceeaE814C8046AC687d9A3Bc3b";
+const bondAddress = "0x311169FF2e09443DE1f820eD1b3Ba974D6EA70d1";
+
+const marketId = 2;
 
 let bond;
 
