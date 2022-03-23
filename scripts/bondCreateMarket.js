@@ -32,7 +32,7 @@ async function main() {
         [depositInterval, tuneInterval]
     );
 
-    console.log("marketId: ", marketId);
+    console.log("create market done, id: ", marketId.toString());
 }
 
 main()

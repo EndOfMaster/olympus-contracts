@@ -3,7 +3,12 @@
 
 This is the main Olympus smart contract development repository.
 
-## 🔧 Setting up local development
+## 🚨 warning 
+> This fork modified the contract, some tests may not work properly
+
+## This fork modify
+- about auth
+- some deploy script
 
 ### Requirements
 
@@ -38,38 +43,5 @@ yarn run start
 yarn run deploy:hardhat
 ```
 
-### Local Setup Steps (with Docker)
-
-A Docker image is available to simplify setup.
-
-```sh
-# First setup keys, to do this first copy as above
-cp .env.example .env # (linux)
-copy .env.example .env # (windows)
-
-# Populate ALCHEMY_API_KEY and PRIVATE_KEY into `.env` afterwards
-# Then, start the node
-make run
-```
-
-## 📜 Contract Addresses
-
- - For [Ethereum Mainnet](./docs/deployments/ethereum.md).
- - For [Rinkeby Testnet](./docs/deployments/rinkeby.md).
-
-### Notes for `localhost`
--   The `deployments/localhost` directory is included in the git repository,
-    so that the contract addresses remain constant. Otherwise, the frontend's
-    `constants.ts` file would need to be updated.
--   Avoid committing changes to the `deployments/localhost` files (unless you
-    are sure), as this will alter the state of the hardhat node when deployed
-    in tests.
-
-## 📖 Guides
-
-### Contracts
-- [Allocator version 1 guide (1.0.0)](./docs/guides/allocator_v1_guide.md).
-- [System Architecture (image)](./docs/guides/system_architecture.md)
-### Testing
-- [Hardhat testing guide](./docs/guides/hardhat_testing.md)
-- [Dapptools testing guide](./docs/guides/dapptools.md)
+### Notes
+- The bond must be created after the treasury `deposit()`, otherwise, `terms.ontrolvariable` must be 0
