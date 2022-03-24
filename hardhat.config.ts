@@ -26,14 +26,15 @@ const chainIds = {
 };
 
 // Ensure that we have all the environment variables we need.
-const privateKey = process.env.PRIVATE_KEY ?? "NO_PRIVATE_KEY";
+const privateKey1 = process.env.PRIVATE_KEY ?? "NO_PRIVATE_KEY";
+const privateKey2 = process.env.PRIVATE_KEY2 ?? "NO_PRIVATE_KEY";
 // Make sure node is setup on Alchemy website
 const alchemyApiKey = process.env.ALCHEMY_API_KEY ?? "NO_ALCHEMY_API_KEY";
 
 function getChainConfig(network: keyof typeof chainIds): NetworkUserConfig {
     const url = `https://eth-${network}.alchemyapi.io/v2/${alchemyApiKey}`;
     return {
-        accounts: [`${privateKey}`],
+        accounts: [`${privateKey1}`, `${privateKey2}`],
         chainId: chainIds[network],
         url,
     };
